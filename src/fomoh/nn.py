@@ -43,7 +43,13 @@ class Model:
         return "Model(\n" + "".join(parts) + ")"
     
     def add_param(self, name, params):
-        setattr(self, name, torch.nn.Parameter(params, requires_grad=False))
+        setattr(self, name, torch.nn.Parameter(params, requires_grad=True))
+        update_or_add_key(self.params, name, getattr(self, name))
+        self.n_params = self.count_n_params()
+        self.named_params = list(self.params.keys())
+
+    def add_param2(self, name, params):
+        setattr(self, name, params)
         update_or_add_key(self.params, name, getattr(self, name))
         self.n_params = self.count_n_params()
         self.named_params = list(self.params.keys())
@@ -120,7 +126,7 @@ class Model:
         for (module_name, module_params), htorch_name  in zip(model.named_parameters(), self.named_params):
             if len(self.params[htorch_name].shape) == 2: # Linear weight
                 if module_params.data.t().shape==self.params[htorch_name].shape:
-                    self.add_param(htorch_name, module_params.data.t())
+                    self.add_param2(htorch_name, module_params.T)
                 else:
                     #Embedding
                     self.add_param(htorch_name, module_params.data)
@@ -216,9 +222,10 @@ class DenseModel(Model):
         i = 0
         for n in range(len(self.layers)-1):
             x, i = self.linear_layers[n](x, params, i)
-            if n < ( len(self.layers) - 2):
+            #Removed if because I apply the activation function on the final layer. If using for your purposes you probably want to change this*****************
+            #if n < ( len(self.layers) - 2):
                 # x = x.sigmoid()
-                x = x.relu()
+            x = x.tanh()
         return x#.logsoftmax()
 
 class CNNModel(Model):

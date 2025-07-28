@@ -15,16 +15,17 @@ class LogRegTorch(nn.Module):
 
 
 class DenseModel_Torch(nn.Module):
-    def __init__(self, layers):
+    def __init__(self, layers, activation = nn.Tanh()):
         super(DenseModel_Torch, self).__init__()
         self.layers = nn.ModuleList()  # Creates a list to hold the layers
         
         # Loop through the provided list of layers
         for i in range(len(layers) - 1):
             # Add a linear layer followed by a ReLU, except for the last layer
-            self.layers.append(nn.Linear(layers[i], layers[i+1]))
-            if i < len(layers) - 2:
-                self.layers.append(nn.ReLU())
+            self.layers.append(nn.Linear(layers[i], layers[i+1],dtype=torch.float32))
+            #Removed if because I apply the activation function on the final layer. If using for your purposes you probably want to change this*****************
+            #if i < len(layers) - 2:
+            self.layers.append(activation)
     
     def forward(self, x):
         # Forward pass through the network

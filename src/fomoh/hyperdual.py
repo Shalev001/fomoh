@@ -5,7 +5,7 @@ def check_first_order(A):
     if (A.eps1 is None and A.eps2 is not None) or (A.eps1 is not None and A.eps2 is None):
         raise ValueError(f"A.eps1: {A.eps1}, while A.eps2: {A.eps2}")
 
-def make_tensor(obj, device = "cpu"):
+def make_tensor(obj, device = "cpu",requires_grad=False):
     if torch.is_tensor(obj):
         return obj
     elif obj is None:
@@ -15,7 +15,7 @@ def make_tensor(obj, device = "cpu"):
         return torch.tensor(obj).to(device)
 
 class HyperTensor:
-    def __init__(self, real, eps1=None, eps2=None, eps1eps2=None):
+    def __init__(self, real, eps1=None, eps2=None, eps1eps2=None,requires_grad=False):
         self.real = make_tensor(real)
         self.device = self.real.device
         self.eps1 = make_tensor(eps1, self.device)
